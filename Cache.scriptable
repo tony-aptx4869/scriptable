@@ -1,0 +1,12 @@
+{
+  "always_run_in_app" : false,
+  "icon" : {
+    "color" : "light-gray",
+    "glyph" : "magic"
+  },
+  "name" : "Cache",
+  "script" : "\/********************************************\n * Scriptable App script\n * Name: Terminal\n * Coding: UTF-8\n * @ Tony Chang\n * Copyright (c) 1994-2021 Tony Chang \\\n * https:\/\/github.com\/tony-aptx4869 \\\n * All Rights Reserved.\n ********************************************\/\n\n\/\/ NOTE: This script was written by \\\n\/\/ evandcoleman: \\\n\/\/ https:\/\/github.com\/evandcoleman\/scriptable\n\nclass Cache {\n  constructor(name) {\n    this.fm = FileManager.iCloud();\n    this.cachePath = this.fm.joinPath(this.fm.documentsDirectory(), name);\n    if (!this.fm.fileExists(this.cachePath)) {\n      this.fm.createDirectory(this.cachePath);\n    }\n  }\n\n  async read(key, expirationMinutes) {\n    try {\n      const path = this.fm.joinPath(this.cachePath, key);\n      await this.fm.downloadFileFromiCloud(path);\n      const createdAt = this.fm.creationDate(path);\n      if (expirationMinutes) {\n        if ((new Date()) - createdAt > (expirationMinutes * 60000)) {\n          this.fm.remove(path);\n          return null;\n        }\n      }\n      const value = this.fm.readString(path);\n      try {\n        return JSON.parse(value);\n      } catch (error) {\n        return value;\n      }\n    } catch (error) {\n      return null;\n    }\n  }\n\n  write(key, value) {\n    const path = this.fm.joinPath(this.cachePath, key.replace('\/', '-'));\n    console.log(`Caching to ${path}...`);\n    if (typeof value === 'string' || value instanceof String) {\n      this.fm.writeString(path, value);\n    } else {\n      this.fm.writeString(path, JSON.stringify(value));\n    }\n  }\n}\n\nmodule.exports = Cache;\n",
+  "share_sheet_inputs" : [
+
+  ]
+}
